@@ -1,0 +1,5 @@
+0.8.6
+bzip2-dev
+libgcrypt-dev
+pkgconfig(zlib)
+zstd-dev
