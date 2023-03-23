@@ -1,4 +1,4 @@
-0.8.6
+0.8.7
 bzip2-dev
 libgcrypt-dev
 pkgconfig(zlib)
