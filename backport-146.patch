@@ -1,0 +1,34 @@
+From b306a0e1cba39f8c04445988442838bf52714b97 Mon Sep 17 00:00:00 2001
+From: "Brett T. Warden" <brett.t.warden@intel.com>
+Date: Tue, 12 Dec 2023 15:24:07 -0800
+Subject: [PATCH] Accept -j arguments greater than FSA_MAX_COMPJOBS
+
+If we're given an argument to -j that exceeds FSA_MAX_COMPJOBS, just force it down to that value.
+---
+ src/fsarchiver.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/src/fsarchiver.c b/src/fsarchiver.c
+index 3ac82f8..33123e8 100644
+--- a/src/fsarchiver.c
++++ b/src/fsarchiver.c
+@@ -231,12 +231,17 @@ int process_cmdline(int argc, char **argv)
+                 break;
+             case 'j': // compression jobs
+                 g_options.compressjobs=atoi(optarg);
+-                if (g_options.compressjobs<1 || g_options.compressjobs>FSA_MAX_COMPJOBS)
++                if (g_options.compressjobs<1)
+                 {
+-                    errprintf("[%s] is not a valid number of jobs. Must be between 1 and %d\n", optarg, FSA_MAX_COMPJOBS);
++                    errprintf("[%s] is not a valid number of jobs. Must be at least 1\n", optarg);
+                     usage(progname, false);
+                     return 1;
+                 }
++                if (g_options.compressjobs>FSA_MAX_COMPJOBS)
++                {
++                    g_options.compressjobs = FSA_MAX_COMPJOBS;
++                    msgprintf(MSG_FORCE, "[%s] is greater than the maximum number of jobs. Limiting to %d.\n", optarg, FSA_MAX_COMPJOBS);
++                }
+                 break;
+             case 'e': // exclude files/directories
+                 strlist_add(&g_options.exclude, optarg);
